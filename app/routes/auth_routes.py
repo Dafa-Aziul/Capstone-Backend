@@ -17,3 +17,7 @@ def login():
 @auth_bp.post("/logout")
 def logout():
     return AuthController.logout()
+
+@auth_bp.post("/refresh")
+def refresh():
+    return AuthController.refresh()

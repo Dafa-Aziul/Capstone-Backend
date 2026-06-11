@@ -5,7 +5,8 @@ from datetime import timedelta
 class BaseConfig:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "change-me")
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=1)
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=15)
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=7)
     
     # Konfigurasi CORS
     # Pisahkan dengan koma jika ada lebih dari satu domain

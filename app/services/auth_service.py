@@ -1,4 +1,4 @@
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, create_refresh_token
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.repositories.user_repository import UserRepository
 
@@ -31,4 +31,12 @@ class AuthService:
             raise ValueError("Akun tidak aktif. Silakan hubungi admin.")
             
         access_token = create_access_token(identity=str(user.id_user))
-        return user, access_token
+        refresh_token = create_refresh_token(identity=str(user.id_user))
+        return user, access_token, refresh_token
+
+    @staticmethod
+    def refresh_access_token(user_id):
+        user = UserRepository.get_by_id(int(user_id))
+        if not user or not user.is_active:
+            raise ValueError("User tidak valid atau tidak aktif")
+        return create_access_token(identity=str(user.id_user))

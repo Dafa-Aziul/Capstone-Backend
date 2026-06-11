@@ -37,7 +37,7 @@ def login_required(fn):
             
         except Exception as e:
             return error_response(
-                message="Akses ditolak: Sesi tidak valid atau telah berakhir (Cookie tidak ditemukan)", 
+                message="Akses ditolak: Sesi tidak valid atau telah berakhir", 
                 errors=str(e), 
                 status_code=401
             )
