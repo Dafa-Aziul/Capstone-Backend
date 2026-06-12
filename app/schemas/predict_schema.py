@@ -1,4 +1,6 @@
+import json
 from marshmallow import Schema, fields, validate
+from app.schemas.ml_models_schema import MlModelSchema
 
 
 class PredictSchema(Schema):
@@ -51,7 +53,6 @@ class SavePredictionSchema(PredictSchema):
 
 
 class RiwayatPrediksiSchema(Schema):
-    # Gunakan fields.Function untuk mapping kustom mirip seperti cara Anda sebelumnya
     nama_user = fields.Function(
         lambda obj: (
             obj.user.nama if obj.user and hasattr(obj.user, "nama") else "Unknown User"
@@ -70,13 +71,14 @@ class RiwayatPrediksiSchema(Schema):
         lambda obj: (
             obj.ml_model.versi
             if obj.ml_model and hasattr(obj.ml_model, "versi")
-            else "Unknown Mode"
+            else "Unknown Model"
         )
     )
     created_at = fields.DateTime()
 
 
 class RiwayatPrediksiByUser(Schema):
+    id_riwayat = fields.Int()
     mobil = fields.Function(
         lambda obj: (
             f"{obj.model_kendaraan.merek.nama_merek} {obj.model_kendaraan.nama_model}".strip()
@@ -86,15 +88,54 @@ class RiwayatPrediksiByUser(Schema):
     )
     harga_prediksi = fields.Float()
     created_at = fields.DateTime()
-    ml_model = fields.Function(
-        lambda obj: (
-            obj.ml_model.versi
-            if obj.ml_model and hasattr(obj.ml_model, "versi")
-            else "Unknown Mode"
-        )
+
+class RiwayatPrediksiDetail(Schema):
+    id_riwayat = fields.Int()
+    created_at = fields.DateTime()
+    
+    # 1. Rename harga_prediksi menjadi prediction menggunakan parameter attribute
+    prediction = fields.Float(attribute="harga_prediksi")
+    
+    # 2. Rename ml_model menjadi model_info dan tambah id_ml_model
+    model_info = fields.Nested(
+        MlModelSchema, 
+        only=("id_ml_model", "versi", "r_squared", "mae"), 
+        attribute="ml_model"
     )
+    # 3. Kelompokkan properti mobil ke dalam object input_data
+    input_data = fields.Method("get_input_data")
+    
+    
+    # 4. Rename shap_summary menjadi shap_explanation
+    shap_explanation = fields.Method("get_shap_summary")
+    
+
+    def get_input_data(self, obj):
+        if not obj:
+            return {}
+        return {
+            "merk": obj.model_kendaraan.merek.nama_merek if getattr(obj, "model_kendaraan", None) and getattr(obj.model_kendaraan, "merek", None) else "",
+            "model": obj.model_kendaraan.nama_model if getattr(obj, "model_kendaraan", None) else "",
+            "year": obj.tahun,
+            "mileage": obj.mileage,
+            "transmission": obj.transmisi,
+            "fuelType": obj.bahan_bakar,
+            "tax": obj.pajak,
+            "mpg": obj.mpg,
+            "engineSize": obj.kapasitas_mesin
+        }
+
+    def get_shap_summary(self, obj):
+        if obj and getattr(obj, "shap_summary", None):
+            try:
+                # Parsing string JSON dari database menjadi Object/Dictionary
+                return json.loads(obj.shap_summary)
+            except (ValueError, TypeError):
+                return obj.shap_summary
+        return None
 
 predict_schema = PredictSchema()
 save_prediction_schema = SavePredictionSchema()
 predicts_schema = RiwayatPrediksiSchema(many=True)
 predict_by_user_schema = RiwayatPrediksiByUser(many=True)
+predict_detail_schema = RiwayatPrediksiDetail()

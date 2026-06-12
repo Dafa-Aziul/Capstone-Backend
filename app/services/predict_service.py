@@ -47,17 +47,17 @@ class PredictService:
 
         # 4. Siapkan data input untuk di-encode dan diprediksi
         raw_data_for_prediction = {
-            "merk": [merek.nama_merek],
-            "model": [model_kendaraan.nama_model],
-            "year": [input_data["tahun"]],
-            "mileage": [input_data["mileage"]],
-            "transmission": [input_data["transmisi"]],
-            "fuelType": [input_data["bahan_bakar"]],
-            "tax": [input_data["pajak"]],
-            "mpg": [input_data["mpg"]],
-            "engineSize": [input_data["kapasitas_mesin"]],
+            "merk": merek.nama_merek,
+            "model": model_kendaraan.nama_model,
+            "year": input_data["tahun"],
+            "mileage": input_data["mileage"],
+            "transmission": input_data["transmisi"],
+            "fuelType": input_data["bahan_bakar"],
+            "tax": input_data["pajak"],
+            "mpg": input_data["mpg"],
+            "engineSize": input_data["kapasitas_mesin"],
         }
-        input_df = pd.DataFrame(raw_data_for_prediction)
+        input_df = pd.DataFrame([raw_data_for_prediction])
 
         # 5. Encode data menggunakan preprocessor yang sudah di-load
         try:
@@ -82,15 +82,15 @@ class PredictService:
 
         # 8. Kembalikan hasil lengkap (tanpa simpan ke database)
         return {
-            "input_data": raw_data_for_prediction,
             "prediction": predicted_price,
-            "shap_explanation": shap_json,
             "model_info": {
                 "id_ml_model": active_model.id_ml_model,
                 "versi": active_model.versi,
                 "r_squared": float(active_model.r_squared),
                 "mae": float(active_model.mae),
             },
+            "input_data": raw_data_for_prediction,
+            "shap_explanation": shap_json,
         }
 
     @staticmethod
@@ -154,7 +154,7 @@ class PredictService:
         items_not_organize, total, total_pages = PredictRepository.get_predict_by_user(
             id_user, page=page, per_page=per_page, search=search
         )
-        
+
         return {
             "data": items_not_organize,
             "pagination": {
@@ -166,3 +166,21 @@ class PredictService:
                 "has_prev": page > 1,
             },
         }
+
+    @staticmethod
+    def get_riwayat_by_id(id_riwayat):
+        riwayat = PredictRepository.get_by_id(id_riwayat)
+        if not riwayat:
+            raise ValueError(f"Riwayat dengan ID {id_riwayat} tidak ditemukan")
+        return riwayat
+
+    def delete_riwayat(
+        id_riwayat,
+        current_user_id,
+    ):
+        riwayat = PredictRepository.get_by_id(id_riwayat)
+        if not riwayat:
+            raise ValueError(f"Riwayat dengan ID {id_riwayat} tidak ditemukan")
+        if riwayat.id_user != current_user_id:
+            raise ValueError("Tidak dapat menghapus riwayat user lain")
+        return PredictRepository.delete(id_riwayat)

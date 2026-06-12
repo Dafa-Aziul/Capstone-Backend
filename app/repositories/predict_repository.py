@@ -44,12 +44,24 @@ class PredictRepository:
         return paginated.items, paginated.total, paginated.pages
 
     @staticmethod
+    def get_by_id(id_riwayat):
+        return RiwayatPrediksi.query.options(
+            joinedload(RiwayatPrediksi.model_kendaraan).joinedload(
+                ModelKendaraan.merek
+            ),
+            joinedload(RiwayatPrediksi.ml_model),
+        ).get(id_riwayat)
+        
+        
+
+    @staticmethod
     def get_predict_by_user(user_id, page=1, per_page=10, search=None):
         query = RiwayatPrediksi.query.options(
             joinedload(RiwayatPrediksi.user),
             joinedload(RiwayatPrediksi.ml_model),
-            joinedload(RiwayatPrediksi.model_kendaraan)
-            .joinedload(ModelKendaraan.merek),
+            joinedload(RiwayatPrediksi.model_kendaraan).joinedload(
+                ModelKendaraan.merek
+            ),
         ).filter(RiwayatPrediksi.id_user == user_id)
 
         if search:
@@ -67,5 +79,13 @@ class PredictRepository:
         query = query.order_by(RiwayatPrediksi.created_at.desc())
 
         paginate = query.paginate(page=page, per_page=per_page, error_out=False)
-        
+
         return paginate.items, paginate.total, paginate.pages
+
+
+    @staticmethod
+    def delete(id_riwayat):
+        RiwayatPrediksi.query.filter_by(id_riwayat=id_riwayat).delete()
+        db.session.commit()
+        
+        return True

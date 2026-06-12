@@ -35,6 +35,7 @@ def register_blueprints(app):
     from app.routes.auth_routes import auth_bp
     from app.routes.ml_models_routes import ml_models_bp
     from app.routes.predict_routes import predict_bp
+    from app.routes.user_routes import user_bp
 
     app.register_blueprint(root_bp)
     app.register_blueprint(merek_bp)
@@ -42,6 +43,7 @@ def register_blueprints(app):
     app.register_blueprint(auth_bp)
     app.register_blueprint(ml_models_bp)
     app.register_blueprint(predict_bp)
+    app.register_blueprint(user_bp)
 
 
 def log_database_connection(app):

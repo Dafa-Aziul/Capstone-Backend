@@ -50,7 +50,7 @@ class MerekController:
 
             return success_response(
                 message="Detail merek berhasil diambil",
-                data={"merek": merek_data},
+                data=merek_data,
                 status_code=200,
             )
 
@@ -133,7 +133,6 @@ class MerekController:
                 message=str(e), status_code=404 if "tidak ditemukan" in str(e) else 400
             )
         except Exception as e:
-
             logger.exception("Terjadi kesalahan: %s", str(e))
             return error_response(
                 message="Terjadi kesalahan saat mengupdate merek",

@@ -17,7 +17,7 @@ def list_predict_by_user():
 
 @predict_bp.post('')
 @login_required
-@role_required('user')
+# @role_required('user')
 def predict_price():
     return PredictController.predict_price()
 
@@ -26,3 +26,14 @@ def predict_price():
 @login_required
 def save_prediction():
     return PredictController.save_prediction()
+
+@predict_bp.get('/<int:id_riwayat>')
+@login_required
+def get_detail_riwayat(id_riwayat):
+    return PredictController.detail_riwayat(id_riwayat)
+
+
+@predict_bp.delete('/<int:id_riwayat>')
+@login_required
+def delete_riwayat(id_riwayat):
+    return PredictController.delete_riwayat(id_riwayat)

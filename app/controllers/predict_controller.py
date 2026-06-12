@@ -1,10 +1,17 @@
 import logging
+import json
 from flask import request, g
 from marshmallow import ValidationError
 
 from werkzeug.exceptions import BadRequest
 from app.services.predict_service import PredictService
-from app.schemas.predict_schema import predict_schema, save_prediction_schema, predicts_schema, predict_by_user_schema
+from app.schemas.predict_schema import (
+    predict_schema,
+    save_prediction_schema,
+    predicts_schema,
+    predict_by_user_schema,
+    predict_detail_schema,
+)
 from app.utils.api_response import success_response, error_response
 
 logger = logging.getLogger(__name__)
@@ -21,7 +28,7 @@ class PredictController:
             result = PredictService.get_all_predict(
                 page=page, per_page=per_page, search=search
             )
-            
+
             items_serialized = predicts_schema.dump(result["data"])
 
             return success_response(
@@ -39,29 +46,32 @@ class PredictController:
                 errors=str(e),
                 status_code=500,
             )
-            
+
+    @staticmethod
     def list_predics_by_user():
         try:
             page = request.args.get("page", 1, type=int)
             per_page = request.args.get("per_page", 10, type=int)
             search = request.args.get("Search", None, type=str)
-            
+
             if not hasattr(g, "user"):
                 return error_response(
                     message="Akses ditolak: Anda harus login.", status_code=401
                 )
-                
+
             id_user = g.user.id_user
-                    
-            result = PredictService.get_predict_by_user(id_user=id_user,page=page, per_page=per_page, search=search)
-            
+
+            result = PredictService.get_predict_by_user(
+                id_user=id_user, page=page, per_page=per_page, search=search
+            )
+
             items_serialized = predict_by_user_schema.dump(result["data"])
-            
+
             return success_response(
                 message="List Predict by user berhasil diambil",
                 data=items_serialized,
                 meta=result["pagination"],
-                status_code=200
+                status_code=200,
             )
         except ValueError as e:
             return error_response(message=str(e), status_code=400)
@@ -69,6 +79,30 @@ class PredictController:
             logger.exception("Terjadi kesalahan: %s", str(e))
             return error_response(
                 message="Terjadi kesalahan saat mengambil data Riwayat Prediksi",
+                errors=str(e),
+                status_code=500,
+            )
+
+    @staticmethod
+    def detail_riwayat(id_riwayat):
+        try:        
+            riwayat = PredictService.get_riwayat_by_id(id_riwayat)
+
+            # Ubah objek riwayat dari DB menjadi dictionary (format JSON) menggunakan schema
+            riwayat_data = predict_detail_schema.dump(riwayat)
+
+            return success_response(
+                message="Detail Riwayat berhasil diambil",
+                data=riwayat_data,
+                status_code=200,
+            )
+            
+        except ValueError as e:
+            return error_response(message=str(e), status_code=404)
+        except Exception as e:
+            logger.exception("Terjadi kesalahan: %s", str(e))
+            return error_response(
+                message="Terjadi kesalahan saat mengambil detail riwayat prediksi",
                 errors=str(e),
                 status_code=500,
             )
@@ -128,7 +162,7 @@ class PredictController:
                 return error_response(
                     message="Akses ditolak: Anda harus login.", status_code=401
                 )
-                
+
             id_user = g.user.id_user
 
             # Eksekusi penyimpanan riwayat prediksi
@@ -150,3 +184,31 @@ class PredictController:
                 message="Terjadi kesalahan internal pada server saat menyimpan riwayat prediksi.",
                 status_code=500,
             )
+
+    @staticmethod
+    def delete_riwayat(id_riwayat):
+        try:
+            current_user_id = g.user.id_user
+            
+            PredictService.delete_riwayat(id_riwayat, current_user_id=current_user_id)
+            
+            return success_response(message="Riwayat berhasil dihapus", status_code=200)
+        except ValueError as e:
+            error_msg = str(e)
+            if "tidak ditemukan" in error_msg:
+                status = 404
+            elif "Tidak dapat" in error_msg:
+                status = 409
+            else:
+                status = 400
+
+            return error_response(message=error_msg, status_code=status)
+        except Exception as e:
+            logger.exception("Terjadi kesalahan: %s", str(e))
+            return error_response(
+                message="Terjadi kesalahan saat menghapus merek",
+                errors=str(e),
+                status_code=500,
+            )
+        
+            
