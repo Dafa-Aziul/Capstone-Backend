@@ -242,7 +242,7 @@ Endpoint untuk mendapatkan daftar semua merek kendaraan.
   }
   ```
 
-- **Rsponse**:
+- **Response**:
 
   ```json
   {
@@ -281,7 +281,7 @@ Endpoint untuk mendapatkan daftar semua merek kendaraan.
 - **Parameter Query**:
   - `page`: Nomor halaman (default: 1)
   - `per_page`: Jumlah data per halaman (default: 10)
-  - `search`: Kata kunci pencarian nama model knedaraan
+  - `search`: Kata kunci pencarian nama model kendaraan
 - **Response**: Mengembalikan list model kendaraan beserta data paginasi.
 
   ```json
@@ -610,7 +610,7 @@ Endpoint untuk mengunggah model ML baru. Wajib menggunakan `multipart/form-data`
   }
   ```
 
-#### d. Set Model Active
+#### e. Set Model Active
 
 Mengubah status model ML tertentu menjadi model utama (aktif).
 
@@ -1132,6 +1132,42 @@ Menyediakan data ringkasan untuk grafik dan statistik pada halaman depan aplikas
       {
         "date": "2026-05",
         "value": 0
+      },
+      {
+        "date": "2026-06",
+        "value": 1
+      }
+    ]
+  }
+  ```
+
+### d. Chart Dashboard User
+
+- **URL**: `/dashboard/chart/user`
+- **Method**: `GET`
+- **Response**:
+
+  ```json
+  {
+    "success": true,
+    "message": "Data Chart user perbulan berhasil diambil",
+    "timestamp": "2026-06-14T16:53:12.123456+00:00",
+    "data": [
+      {
+        "date": "2026-02",
+        "value": 0
+      },
+      {
+        "date": "2026-03",
+        "value": 0
+      },
+      {
+        "date": "2026-04",
+        "value": 0
+      },
+      {
+        "date": "2026-05",
+        "value": 1
       },
       {
         "date": "2026-06",

@@ -30,5 +30,4 @@ def update_merek(id_merek):
 @merek_bp.delete('/<int:id_merek>')
 @login_required
 def delete_merek(id_merek):
-    """DELETE /api/mereks/<id> - Delete merek"""
     return MerekController.delete_merek(id_merek)
