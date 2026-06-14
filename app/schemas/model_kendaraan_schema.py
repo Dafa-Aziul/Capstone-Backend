@@ -23,8 +23,8 @@ class ModelKendaraanCreate(Schema):
 
 
 class ModelKendaraanUpdateSchema(Schema):
-    id_merek = fields.Int(required=False)
-    nama_model = fields.Str(required=False, validate=validate.Length(min=1, max=50))
+    id_merek = fields.Int(required=True)
+    nama_model = fields.Str(required=True, validate=validate.Length(min=1, max=50))
 
 
 model_kendaraan_schema = ModelKendaraan()

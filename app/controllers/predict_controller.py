@@ -271,3 +271,50 @@ class PredictController:
                 errors=str(e),
                 status_code=500,
             )
+
+    @staticmethod
+    def get_latest_activity():
+        try:
+            jumlah = request.args.get("jumlah", 5, type=int)
+            activities = PredictService.get_latest_activity(jumlah)
+
+            items_serialized = predicts_schema.dump(activities)
+
+            return success_response(
+                message="Aktivitas terbaru berhasil diambil",
+                data=items_serialized,
+                status_code=200,
+            )
+        except ValueError as e:
+            return error_response(message=str(e), status_code=400)
+        except Exception as e:
+            logger.exception("Terjadi kesalahan: %s", str(e))
+            return error_response(
+                message="Terjadi kesalahan saat mengambil aktivitas terbaru",
+                errors=str(e),
+                status_code=500,
+            )
+
+    @staticmethod
+    def get_latest_activity_user():
+        try:
+            jumlah = request.args.get("jumlah", 5, type=int)
+            id_user = g.user.id_user
+            activities = PredictService.get_latest_activity_user(id_user, jumlah)
+
+            items_serialized = predicts_schema.dump(activities)
+
+            return success_response(
+                message="Aktivitas terbaru user berhasil diambil",
+                data=items_serialized,
+                status_code=200,
+            )
+        except ValueError as e:
+            return error_response(message=str(e), status_code=400)
+        except Exception as e:
+            logger.exception("Terjadi kesalahan: %s", str(e))
+            return error_response(
+                message="Terjadi kesalahan saat mengambil aktivitas terbaru user",
+                errors=str(e),
+                status_code=500,
+            )

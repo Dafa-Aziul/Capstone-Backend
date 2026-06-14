@@ -29,7 +29,7 @@ def create_model_kendaraan():
     return ModelKendaraanController.create_model_kendaraan()
 
 
-@model_kendaraan_bp.patch("/<int:id_model>")
+@model_kendaraan_bp.put("/<int:id_model>")
 def update_model_kendaraan(id_model):
     return ModelKendaraanController.update_model_kendaraan(id_model)
 

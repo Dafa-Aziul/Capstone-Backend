@@ -66,3 +66,17 @@ def get_detail_riwayat(id_riwayat):
 # @role_required('user')
 def delete_riwayat(id_riwayat):
     return PredictController.delete_riwayat(id_riwayat)
+
+
+@predict_bp.get("/latest-activity/admin")
+@login_required
+@role_required("admin")
+def get_latest_activity():
+    return PredictController.get_latest_activity()
+
+
+@predict_bp.get("/latest-activity/user")
+@login_required
+# @role_required('user')
+def get_latest_activity_user():
+    return PredictController.get_latest_activity_user()

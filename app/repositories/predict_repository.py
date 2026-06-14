@@ -49,7 +49,7 @@ class PredictRepository:
     def get_stat_predict_admin():
         total_predict = RiwayatPrediksi.query.count()
         current_date = utc_now()
-        
+
         total_predict_today = RiwayatPrediksi.query.filter(
             extract("year", RiwayatPrediksi.created_at) == current_date.year,
             extract("month", RiwayatPrediksi.created_at) == current_date.month,
@@ -58,9 +58,8 @@ class PredictRepository:
 
         return {
             "total_predict": total_predict,
-            "total_predict_today": total_predict_today
+            "total_predict_today": total_predict_today,
         }
-        
 
     @staticmethod
     def get_by_id(id_riwayat):
@@ -76,20 +75,14 @@ class PredictRepository:
         query = RiwayatPrediksi.query.options(
             joinedload(RiwayatPrediksi.user),
             joinedload(RiwayatPrediksi.ml_model),
-            joinedload(RiwayatPrediksi.model_kendaraan).joinedload(
-                ModelKendaraan.merek
-            ),
+            joinedload(RiwayatPrediksi.model_kendaraan),
         ).filter(RiwayatPrediksi.id_user == user_id)
 
         if search:
-            query = (
-                query.outerjoin(RiwayatPrediksi.model_kendaraan)
-                .outerjoin(ModelKendaraan.merek)
-                .filter(
-                    or_(
-                        ModelKendaraan.nama_model.ilike(f"%{search}%"),
-                        Merek.nama_merek.ilike(f"%{search}%"),
-                    )
+            query = query.outerjoin(ModelKendaraan.merek).filter(
+                or_(
+                    ModelKendaraan.nama_model.ilike(f"%{search}%"),
+                    Merek.nama_merek.ilike(f"%{search}%"),
                 )
             )
 
@@ -145,7 +138,9 @@ class PredictRepository:
     def get_weekly_chart(user_id=None):
         end_date = utc_now()
         # Set ke awal hari 6 hari yang lalu untuk mencakup 7 hari penuh (termasuk hari ini)
-        start_date = (end_date - timedelta(days=6)).replace(hour=0, minute=0, second=0, microsecond=0)
+        start_date = (end_date - timedelta(days=6)).replace(
+            hour=0, minute=0, second=0, microsecond=0
+        )
 
         query = RiwayatPrediksi.query.filter(RiwayatPrediksi.created_at >= start_date)
 
@@ -168,3 +163,23 @@ class PredictRepository:
 
         # Ubah menjadi format array of object untuk frontend
         return [{"date": k, "value": v} for k, v in date_counts.items()]
+
+    @staticmethod
+    def get_lastest_activity(user_id=None, jumlah=3):
+        query = RiwayatPrediksi.query.options(
+            joinedload(RiwayatPrediksi.user),
+            joinedload(RiwayatPrediksi.model_kendaraan).joinedload(
+                ModelKendaraan.merek
+            ),
+            joinedload(RiwayatPrediksi.ml_model),
+        )
+
+        query = query.order_by(RiwayatPrediksi.created_at.desc())
+
+        if jumlah:
+            query = query.limit(jumlah)
+
+        if user_id:
+            query = query.filter(RiwayatPrediksi.id_user == user_id)
+
+        return query.all()

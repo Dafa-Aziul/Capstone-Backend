@@ -21,7 +21,7 @@ class PredictService:
     @staticmethod
     def predict(input_data):
         # 1. Dapatkan model ML yang aktif
-        active_model = MlModelsRepository.get_active_model()
+        active_model, _ = MlModelsRepository.get_active_model()
         if not active_model:
             raise ValueError("Tidak ada model ML yang aktif saat ini.")
 
@@ -209,3 +209,15 @@ class PredictService:
     @staticmethod
     def get_weekly_chart_admin():
         return PredictRepository.get_weekly_chart()
+
+    @staticmethod
+    def get_latest_activity(jumlah=5):
+        if jumlah < 1:
+            raise ValueError("Jumlah harus >= 1")
+        return PredictRepository.get_lastest_activity(jumlah=jumlah)
+
+    @staticmethod
+    def get_latest_activity_user(id_user, jumlah=5):
+        if jumlah < 1:
+            raise ValueError("Jumlah harus >= 1")
+        return PredictRepository.get_lastest_activity(user_id=id_user, jumlah=jumlah)
