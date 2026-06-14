@@ -8,6 +8,7 @@ from flask import current_app
 from app.repositories.ml_models_repository import MlModelsRepository
 from app.repositories.model_kendaraan_repository import ModelKendaraanRepository
 from app.repositories.predict_repository import PredictRepository
+from app.repositories.user_repository import UserRepository
 from app.utils.ml_utils import (
     load_ml_artifacts,
     get_clean_feature_names,
@@ -143,6 +144,8 @@ class PredictService:
             },
         }
 
+    
+
     @staticmethod
     def get_predict_by_user(id_user, page=1, per_page=10, search=None):
         if page < 1:
@@ -168,12 +171,31 @@ class PredictService:
         }
 
     @staticmethod
+    def get_stat_predict_user(id_user):
+        return PredictRepository.get_stat_predict_user(id_user)
+    
+    @staticmethod
+    def get_stat_predict_admin():
+        stat = PredictRepository.get_stat_predict_admin()
+        
+        # 1. Tambahkan total user aktif dari UserRepository
+        user_stats = UserRepository.get_stat()
+        stat["total_active_users"] = user_stats.get("total_active_users", 0)
+        
+        # 2. Tambahkan versi model ML yang aktif dari MlModelsRepository
+        model_active, _ = MlModelsRepository.get_active_model()
+        stat["model_active_version"] = model_active.versi if model_active else None
+        
+        return stat
+
+    @staticmethod
     def get_riwayat_by_id(id_riwayat):
         riwayat = PredictRepository.get_by_id(id_riwayat)
         if not riwayat:
             raise ValueError(f"Riwayat dengan ID {id_riwayat} tidak ditemukan")
         return riwayat
 
+    @staticmethod
     def delete_riwayat(
         id_riwayat,
         current_user_id,
@@ -184,3 +206,8 @@ class PredictService:
         if riwayat.id_user != current_user_id:
             raise ValueError("Tidak dapat menghapus riwayat user lain")
         return PredictRepository.delete(id_riwayat)
+
+
+    @staticmethod
+    def get_weekly_chart_admin():
+        return PredictRepository.get_weekly_chart()

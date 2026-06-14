@@ -1,5 +1,4 @@
 import logging
-import json
 from flask import request, g
 from marshmallow import ValidationError
 
@@ -84,8 +83,70 @@ class PredictController:
             )
 
     @staticmethod
+    def get_stat_user():
+        try:
+            # Mengambil ID user dari konteks login JWT
+            user_id = g.user.id_user
+
+            stats = PredictService.get_stat_predict_user(user_id)
+
+            return success_response(
+                message="Statistik prediksi user berhasil diambil",
+                data=stats,
+                status_code=200,
+            )
+        except ValueError as e:
+            return error_response(message=str(e), status_code=400)
+        except Exception as e:
+            logger.exception(
+                "Terjadi kesalahan saat mengambil stat prediksi: %s", str(e)
+            )
+            return error_response(
+                message="Terjadi kesalahan di server saat mengambil statistik prediksi",
+                status_code=500,
+            )
+
+    @staticmethod
+    def get_stat_admin():
+        try:
+            stats = PredictService.get_stat_predict_admin()
+
+            return success_response(
+                message="Statistik prediksi admin berhasil diambil",
+                data=stats,
+                status_code=200,
+            )
+        except Exception as e:
+            logger.exception(
+                "Terjadi kesalahan saat mengambil stat prediksi admin: %s", str(e)
+            )
+            return error_response(
+                message="Terjadi kesalahan di server saat mengambil statistik prediksi admin",
+                status_code=500,
+            )
+
+    @staticmethod
+    def get_chart_admin():
+        try:
+            data = PredictService.get_weekly_chart_admin()
+            
+            return success_response(
+                message="Data chart mingguan admin berhasil diambil",
+                data=data,
+                status_code=200,
+            )
+        except Exception as e:
+            logger.exception(
+                "Terjadi kesalahan saat mengambil chart admin: %s", str(e)
+            )
+            return error_response(
+                message="Terjadi kesalahan di server saat mengambil data chart",
+                status_code=500,
+            )
+
+    @staticmethod
     def detail_riwayat(id_riwayat):
-        try:        
+        try:
             riwayat = PredictService.get_riwayat_by_id(id_riwayat)
 
             # Ubah objek riwayat dari DB menjadi dictionary (format JSON) menggunakan schema
@@ -96,7 +157,7 @@ class PredictController:
                 data=riwayat_data,
                 status_code=200,
             )
-            
+
         except ValueError as e:
             return error_response(message=str(e), status_code=404)
         except Exception as e:
@@ -189,9 +250,9 @@ class PredictController:
     def delete_riwayat(id_riwayat):
         try:
             current_user_id = g.user.id_user
-            
+
             PredictService.delete_riwayat(id_riwayat, current_user_id=current_user_id)
-            
+
             return success_response(message="Riwayat berhasil dihapus", status_code=200)
         except ValueError as e:
             error_msg = str(e)
@@ -210,5 +271,3 @@ class PredictController:
                 errors=str(e),
                 status_code=500,
             )
-        
-            
