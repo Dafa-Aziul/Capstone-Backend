@@ -144,8 +144,6 @@ class PredictService:
             },
         }
 
-    
-
     @staticmethod
     def get_predict_by_user(id_user, page=1, per_page=10, search=None):
         if page < 1:
