@@ -1,7 +1,6 @@
 from flask import Blueprint
 from app.controllers.auth_controller import AuthController
 
-
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 
@@ -14,9 +13,11 @@ def register():
 def login():
     return AuthController.login()
 
+
 @auth_bp.post("/logout")
 def logout():
     return AuthController.logout()
+
 
 @auth_bp.post("/refresh")
 def refresh():
