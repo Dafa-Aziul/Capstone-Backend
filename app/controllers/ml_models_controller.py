@@ -29,10 +29,8 @@ class MlModelsController:
 
             return success_response(
                 message="Daftar model ML berhasil diambil",
-                data={
-                    "ml_models": items_serialized,
-                    "pagination": result["pagination"],
-                },
+                data=items_serialized,
+                meta=result["pagination"],
                 status_code=200,
             )
         except ValueError as e:
@@ -131,7 +129,7 @@ class MlModelsController:
 
             return success_response(
                 message="Model ML berhasil diaktifkan",
-                data={"ml_model": ml_model_schema.dump(record)},
+                data=ml_model_schema.dump(record),
                 status_code=200,
             )
         except ValueError as e:

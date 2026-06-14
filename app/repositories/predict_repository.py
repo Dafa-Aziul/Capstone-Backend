@@ -176,10 +176,10 @@ class PredictRepository:
 
         query = query.order_by(RiwayatPrediksi.created_at.desc())
 
-        if jumlah:
-            query = query.limit(jumlah)
-
         if user_id:
             query = query.filter(RiwayatPrediksi.id_user == user_id)
+
+        if jumlah:
+            query = query.limit(jumlah)
 
         return query.all()

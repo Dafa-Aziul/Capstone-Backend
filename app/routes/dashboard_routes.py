@@ -14,7 +14,7 @@ def get_stat_admin():
 
 @dashboard_bp.get("/stat/user")
 @login_required
-@role_required("user")
+# @role_required("user")
 def get_stat_user():
     return DashboardController.stat_user()
 
@@ -28,6 +28,6 @@ def get_chart_admin():
 
 @dashboard_bp.get("/chart/user")
 @login_required
-@role_required("user")
+# @role_required("user")
 def get_chart_user():
     return DashboardController.monthly_predict_user()
