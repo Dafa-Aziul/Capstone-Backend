@@ -31,3 +31,7 @@ class UserService:
         if int(target_user_id) == int(current_user_id):
             raise ValueError("Tidak dapat update status sendiri")
         return UserRepository.set_status_user(target_user_id)
+
+    @staticmethod
+    def get_stat():
+        return UserRepository.get_stat()

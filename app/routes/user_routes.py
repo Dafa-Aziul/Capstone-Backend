@@ -14,8 +14,14 @@ user_bp = Blueprint(
 def list_user():
     return UserController.list_users()
 
-@user_bp.patch("/<int:id_user>/status")
+@user_bp.patch("/<int:id_user>/set-status")
 @login_required
 @role_required('admin')
 def update_status(id_user):
     return UserController.set_status_user(id_user)
+
+@user_bp.get("/stats")
+@login_required
+@role_required('admin')
+def get_user_stats():
+    return UserController.get_user_stats()

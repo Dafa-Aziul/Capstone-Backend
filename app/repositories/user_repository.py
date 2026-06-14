@@ -48,4 +48,14 @@ class UserRepository:
         
         return paginate.items, paginate.total, paginate.pages 
 
-    
+    @staticmethod
+    def get_stat():
+        total_user = User.query.count()
+        total_active = User.query.filter_by(is_active=True).count()
+        total_inactive = User.query.filter_by(is_active=False).count()
+        
+        return {
+            "total_users": total_user,
+            "total_active_users": total_active,
+            "total_inactive_users": total_inactive
+        }

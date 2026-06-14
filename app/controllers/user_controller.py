@@ -54,4 +54,22 @@ class UserController:
                 message="Terjadi kesalahan saat mengubah status user",
                 status_code=500,
             )
+            
+    @staticmethod
+    def get_user_stats():
+        try:
+            stats = UserService.get_stat()
+            return success_response(
+                message="Statistik user berhasil diambil",
+                data=stats,
+                status_code=200
+            )
+        except ValueError as e:
+                return error_response(message=str(e), status_code=400)
+        except Exception as e:
+            logger.exception("Terjadi kesalahan: %s", str(e))
+            return error_response(
+                message="Terjadi kesalahan saat mengambil statistik user",
+                status_code=500,
+            )
         
