@@ -11,6 +11,11 @@ ml_models_bp = Blueprint('ml_models', __name__, url_prefix='/ml-models')
 def list_all():
     return MlModelsController.list_all()
 
+@ml_models_bp.get('/active')
+@login_required
+@role_required('admin')
+def get_active_model():
+    return MlModelsController.get_model_active()
 
 @ml_models_bp.get('/<int:id_ml_model>')
 @login_required

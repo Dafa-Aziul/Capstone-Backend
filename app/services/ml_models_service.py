@@ -39,6 +39,10 @@ class MlModelsService:
         return model
 
     @staticmethod
+    def get_active():
+        return MlModelsRepository.get_active_model()
+    
+    @staticmethod
     def create(uploaded_by, file, versi, r_squared, mae):
         # 1. validasi input
         if not file or not file.filename:
@@ -110,3 +114,5 @@ class MlModelsService:
             else:
                 raise ValueError("Model tidak ditemukan")
         return True
+
+

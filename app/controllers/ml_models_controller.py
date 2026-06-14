@@ -9,8 +9,8 @@ from app.schemas.ml_models_schema import (
 )
 from app.utils.api_response import success_response, error_response
 
-
 logger = logging.getLogger(__name__)
+
 
 class MlModelsController:
 
@@ -45,13 +45,32 @@ class MlModelsController:
             )
 
     @staticmethod
+    def get_model_active():
+        try:
+            model, total = MlModelsService.get_active()
+
+            model_data = ml_model_schema.dump(model)
+            model_data["total_models"] = total
+
+            return success_response(
+                message="Data model aktif berhasil didapatkan",
+                data=model_data,
+                status_code=200,
+            )
+        except ValueError as e:
+            return error_response(message=str(e), status_code=404)
+        except Exception as e:
+            logger.exception("Terjadi kesalahan: %s", str(e))
+        return error_response(message="Terjadi kesalahan di server", status_code=500)
+
+    @staticmethod
     def get_detail(id_ml_model):
         try:
             model = MlModelsService.get_by_id(id_ml_model)
 
             return success_response(
                 message="Detail model ML berhasil diambil",
-                data={"ml_model": ml_model_schema.dump(model)},
+                data=ml_model_schema.dump(model),
                 status_code=200,
             )
         except ValueError as e:
@@ -59,8 +78,7 @@ class MlModelsController:
         except Exception as e:
             logger.exception("Terjadi kesalahan: %s", str(e))
             return error_response(
-                message="Terjadi kesalahan di server", 
-                status_code=500
+                message="Terjadi kesalahan di server", status_code=500
             )
 
     @staticmethod
@@ -70,9 +88,9 @@ class MlModelsController:
             input_data = request.form.to_dict()
             if "file" in request.files and request.files["file"].filename:
                 input_data["file"] = request.files.get("file")
-                
+
             validated_data = ml_model_create_schema.load(input_data)
-            
+
             if not hasattr(g, "user"):
                 return error_response(
                     message="Akses ditolak: Sesi tidak valid", status_code=401

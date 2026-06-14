@@ -7,16 +7,16 @@ class MlModelsRepository:
     @staticmethod
     def get_all(page=1, per_page=10, search=None):
         query = MlModel.query
-        
+
         # 1. Filter berdasarkan search keyword
         if search:
             query = query.filter(MlModel.versi.ilike(f"%{search}%"))
 
-        # 2. Sorting by nama_merek
-        query = query.order_by(MlModel.versi.asc())
+        # 2. Sorting by tanggal
+        query = query.order_by(MlModel.uploaded_at.desc())
 
         # 3. pagination
-        paginated = query.paginate(page, per_page, error_out=False)
+        paginated = query.paginate(page=page, per_page=per_page, error_out=False)
 
         return paginated.items, paginated.total, paginated.pages
 
@@ -30,7 +30,9 @@ class MlModelsRepository:
 
     @staticmethod
     def get_active_model():
-        return MlModel.query.filter_by(is_current=True).first()
+        model_active = MlModel.query.filter_by(is_current=True).first()
+        total_model = MlModel.query.count()
+        return model_active, total_model
 
     @staticmethod
     def create(uploaded_by, file_path, versi, r_squared, mae):
@@ -81,7 +83,7 @@ class MlModelsRepository:
     def delete(id_ml_model):
         # 1. cek apakah model ada
         existing_model = MlModel.query.get(id_ml_model)
-        
+
         if not existing_model:
             raise ValueError(f"Model ML dengan ID {id_ml_model} tidak ditemukan")
 
