@@ -57,7 +57,7 @@ class ModelKendaraanRepository:
         return model
 
     @staticmethod
-    def update(id_model, id_merek=None, nama_model=None):
+    def update(id_model, id_merek, nama_model):
         # 1. apakah model sudah ada
         model = ModelKendaraanRepository.get_by_id(id_model)
         if not model:

@@ -57,7 +57,7 @@ class ModelKendaraanService:
         return ModelKendaraanRepository.create(id_merek, nama_model)
 
     @staticmethod
-    def update_model_kendaraan(id_model, id_merek=None, nama_model=None):
+    def update_model_kendaraan(id_model, id_merek, nama_model):
         if nama_model is not None:
             if not nama_model or not nama_model.strip():
                 raise ValueError("Nama Model tidak boleh kosong")

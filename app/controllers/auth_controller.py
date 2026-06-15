@@ -46,7 +46,7 @@ class AuthController:
         except ValueError as e:
             return error_response(message=str(e), status_code=400)
         except Exception as e:
-            logger.exception("Terjadi kesalahan: %s", str(e))
+            logger.exception("Terjadi kesalahan saat register: %s", str(e))
             return error_response(
                 message="Terjadi kesalahan server", errors=str(e), status_code=500
             )
@@ -83,7 +83,7 @@ class AuthController:
         except ValueError as e:
             return error_response(message=str(e), status_code=401)
         except Exception as e:
-            logger.exception("Terjadi kesalahan: %s", str(e))
+            logger.exception("Terjadi kesalahan saat login: %s", str(e))
             return error_response(
                 message="Terjadi kesalahan server", errors=str(e), status_code=500
             )
@@ -127,7 +127,7 @@ class AuthController:
             unset_jwt_cookies(response)
             return response
         except Exception as e:
-            logger.exception("Terjadi kesalahan: %s", str(e))
+            logger.exception("Terjadi kesalahan saat logout: %s", str(e))
             return error_response(
                 message="Terjadi kesalahan server", errors=str(e), status_code=500
             )
