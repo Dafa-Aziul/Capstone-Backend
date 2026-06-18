@@ -131,3 +131,30 @@ class AuthController:
             return error_response(
                 message="Terjadi kesalahan server", errors=str(e), status_code=500
             )
+
+    @staticmethod
+    def me():
+        try:
+            # 1. Verifikasi keberadaan dan keabsahan access token di cookies
+            verify_jwt_in_request(locations=["cookies"])
+            current_user_id = get_jwt_identity()
+            
+            # 2. Ambil data user dari service
+            user = AuthService.get_current_user(current_user_id)
+            
+            # 3. Kembalikan response sukses
+            return success_response(
+                message="Data user aktif berhasil diambil",
+                data={"user": user.to_dict()},
+                status_code=200
+            )
+            
+        except ValueError as e:
+            return error_response(message=str(e), status_code=401)
+        except Exception as e:
+            logger.exception("Terjadi kesalahan saat mengambil data current user: %s", str(e))
+            return error_response(
+                message="Akses ditolak: Sesi tidak valid atau telah berakhir.", 
+                errors=str(e), 
+                status_code=401
+            )

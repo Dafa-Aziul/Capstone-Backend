@@ -1,8 +1,8 @@
-## Backend Structure
+# Backend Structure
 
 This project uses a Flask app factory pattern so configuration and extension setup stay modular and easier to maintain.
 
-### Main folders
+## Main folders
 
 - `app/`: main application package
 - `app/config/`: application configuration classes
@@ -90,8 +90,6 @@ return error_response("Validation failed", errors=validation_errors, status_code
 ### Root endpoints
 
 - `GET /`: base API welcome response
-- `GET /welcome`: simple welcome endpoint
-- `GET /health`: health check endpoint
 
 ### Database startup logging
 

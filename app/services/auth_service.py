@@ -40,3 +40,12 @@ class AuthService:
         if not user or not user.is_active:
             raise ValueError("User tidak valid atau tidak aktif")
         return create_access_token(identity=str(user.id_user))
+
+    @staticmethod
+    def get_current_user(user_id):
+        user = UserRepository.get_by_id(int(user_id))
+        if not user:
+            raise ValueError("User tidak ditemukan")
+        if not user.is_active:
+            raise ValueError("Akun tidak aktif. Silakan hubungi admin.")
+        return user

@@ -112,6 +112,30 @@ Endpoint untuk menghapus sesi login (menghapus cookie).
   }
   ```
 
+#### e. Get Current User
+
+Endpoint untuk mendapatkan informasi user yang sedang login berdasarkan token di cookie.
+
+- **URL**: `/auth/me`
+- **Method**: `GET`
+- **Response**:
+
+  ```json
+  {
+    "success": true,
+    "message": "Data user berhasil diambil",
+    "data": {
+      "id_user": 1,
+      "nama": "<nama_lengkap>",
+      "email": "<email_user>",
+      "role": "<role>",
+      "is_active": true,
+      "created_at": "<timestamp>"
+    },
+    "timestamp": "<timestamp>"
+  }
+  ```
+
 ---
 
 ### 2. Merek Kendaraan (`/merek`)
@@ -751,7 +775,7 @@ Endpoint untuk mendapatkan data chart riwayat prediksi 1 minggu kebelakang, yang
 
 Endpoint untuk mendapatkan daftar aktivitas prediksi terbaru yang dilakukan oleh semua user, termasuk informasi user, mobil yang diprediksi, harga prediksi, dan waktu prediksi.
 
-- **URL**: `/predict/latest-activity/admin?jumlah=5`
+  - **URL**: `/predict/latest-activity/admin?jumlah=5`
 - query parameter `jumlah` digunakan untuk menentukan berapa banyak aktivitas terbaru yang ingin ditampilkan (default: 5).
 - **Method**: `GET`
 - **Response**:

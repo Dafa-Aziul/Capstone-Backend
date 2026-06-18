@@ -22,7 +22,7 @@ class PredictController:
         try:
             page = request.args.get("page", 1, type=int)
             per_page = request.args.get("per_page", 10, type=int)
-            search = request.args.get("Search", None, type=str)
+            search = request.args.get("search", None, type=str)
 
             result = PredictService.get_all_predict(
                 page=page, per_page=per_page, search=search
@@ -51,7 +51,7 @@ class PredictController:
         try:
             page = request.args.get("page", 1, type=int)
             per_page = request.args.get("per_page", 10, type=int)
-            search = request.args.get("Search", None, type=str)
+            search = request.args.get("search", None, type=str)
 
             if not hasattr(g, "user"):
                 return error_response(
