@@ -2,7 +2,7 @@ import logging
 from flask import request, g
 from marshmallow import ValidationError
 
-from app.schemas.user_schema import users_schema
+from app.schemas.user_schema import create_admin_schema, users_schema
 from app.services.user_service import UserService
 from app.utils.api_response import success_response, error_response
 
@@ -72,4 +72,57 @@ class UserController:
                 message="Terjadi kesalahan saat mengambil statistik user",
                 status_code=500,
             )
-        
+
+    @staticmethod
+    def create_admin():
+        try:
+            data = request.get_json()
+            if not data:
+                return error_response(
+                    message="Request body is required", status_code=400
+                )
+
+            validated_data = create_admin_schema.load(data)
+            admin = UserService.create_admin(
+                nama=validated_data["nama"],
+                email=validated_data["email"],
+            )
+
+            return success_response(
+                message="Admin berhasil dibuat",
+                data={"user": admin.to_dict()},
+                status_code=201,
+            )
+        except ValidationError as e:
+            return error_response(
+                message="Validasi gagal", errors=e.messages, status_code=400
+            )
+        except ValueError as e:
+            return error_response(message=str(e), status_code=400)
+        except Exception as e:
+            logger.exception("Terjadi kesalahan saat membuat admin: %s", str(e))
+            return error_response(
+                message="Terjadi kesalahan saat membuat admin",
+                status_code=500,
+            )
+
+    @staticmethod
+    def reset_password_user(id_user):
+        try:
+            current_user_id = g.user.id_user
+            user = UserService.reset_password(
+                target_user_id=id_user, current_user_id=current_user_id
+            )
+
+            return success_response(
+                message=f"Password user {user.nama} berhasil direset ke password default",
+                status_code=200,
+            )
+        except ValueError as e:
+            return error_response(message=str(e), status_code=400)
+        except Exception as e:
+            logger.exception("Terjadi kesalahan saat reset password user: %s", str(e))
+            return error_response(
+                message="Terjadi kesalahan saat reset password user",
+                status_code=500,
+            )

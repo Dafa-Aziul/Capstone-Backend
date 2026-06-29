@@ -8,19 +8,17 @@ class RiwayatPrediksi(db.Model):
     id_riwayat = db.Column(db.Integer, primary_key=True, autoincrement=True)
     id_user = db.Column(
         db.Integer,
-        db.ForeignKey("users.id_user", onupdate="CASCADE", ondelete="CASCADE"),
+        db.ForeignKey("users.id_user", onupdate="CASCADE"),
         nullable=False,
     )
     id_model = db.Column(
         db.Integer,
-        db.ForeignKey(
-            "model_kendaraan.id_model", onupdate="CASCADE", ondelete="CASCADE"
-        ),
+        db.ForeignKey("model_kendaraan.id_model", onupdate="CASCADE"),
         nullable=False,
     )
     id_ml_model = db.Column(
         db.Integer,
-        db.ForeignKey("ml_models.id_ml_model", onupdate="CASCADE", ondelete="CASCADE"),
+        db.ForeignKey("ml_models.id_ml_model", onupdate="CASCADE"),
         nullable=False,
     )
     tahun = db.Column(db.Integer, nullable=False)
@@ -35,6 +33,8 @@ class RiwayatPrediksi(db.Model):
     created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utc_now)
 
     # Eager load relasi foreign keys - prediksi tidak lengkap tanpa data ini
-    user = db.relationship("User", back_populates="predicts", lazy='joined')
-    model_kendaraan = db.relationship("ModelKendaraan", back_populates="predicts", lazy='joined')
-    ml_model = db.relationship("MlModel", back_populates="predicts", lazy='joined')
+    user = db.relationship("User", back_populates="predicts", lazy="joined")
+    model_kendaraan = db.relationship(
+        "ModelKendaraan", back_populates="predicts", lazy="joined"
+    )
+    ml_model = db.relationship("MlModel", back_populates="predicts", lazy="joined")

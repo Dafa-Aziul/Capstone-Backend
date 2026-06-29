@@ -4,10 +4,17 @@ from marshmallow import Schema, fields, validate
 class ModelKendaraan(Schema):
     id_model = fields.Int(dump_only=True)
     id_merek = fields.Int(dump_only=True)
+    nama_merek = fields.Function(
+        lambda obj: (
+            obj.merek.nama_merek
+            if obj.merek and hasattr(obj.merek, "nama_merek")
+            else "Unknown Merek"
+        )
+    )
     nama_model = fields.Str(required=True, validate=validate.Length(min=1, max=50))
 
     class Meta:
-        fields = ("id_model", "id_merek", "nama_model")
+        fields = ("id_model", "id_merek", "nama_merek", "nama_model")
 
 
 class ModelKendaraanCreate(Schema):

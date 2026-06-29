@@ -7,21 +7,21 @@ predict_bp = Blueprint("predict", __name__, url_prefix="/predict")
 
 @predict_bp.get("")
 @login_required
-@role_required("admin")
+@role_required("admin", "superadmin")
 def list_predicts():
     return PredictController.list_predict()
 
 
 @predict_bp.get("/stat/admin")
 @login_required
-@role_required("admin")
+@role_required("admin", "superadmin")
 def get_stat_admin():
     return PredictController.get_stat_admin()
 
 
 @predict_bp.get("/chart/admin")
 @login_required
-@role_required("admin")
+@role_required("admin", "superadmin")
 def get_chart_admin():
     return PredictController.get_chart_admin()
 
@@ -70,7 +70,7 @@ def delete_riwayat(id_riwayat):
 
 @predict_bp.get("/latest-activity/admin")
 @login_required
-@role_required("admin")
+@role_required("admin", "superadmin")
 def get_latest_activity():
     return PredictController.get_latest_activity()
 

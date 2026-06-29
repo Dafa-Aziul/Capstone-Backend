@@ -2,7 +2,6 @@ from marshmallow import Schema, fields, validate, validates, ValidationError
 
 
 class MlModelSchema(Schema):
-    """Schema untuk response detail & list model ML"""
     
     id_ml_model = fields.Int(dump_only=True)
     uploaded_by = fields.Int()

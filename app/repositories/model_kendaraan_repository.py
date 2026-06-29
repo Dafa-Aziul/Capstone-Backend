@@ -1,13 +1,15 @@
 from app.models.model_kendaraan_model import ModelKendaraan
+from app.models.riwayat_prediksi_model import RiwayatPrediksi
 from app.repositories.merek_repository import MerekRepository
 from app.extensions import db
+from sqlalchemy.orm import joinedload
 
 
 class ModelKendaraanRepository:
 
     @staticmethod
     def get_all(page=1, per_page=10, search=None):
-        query = ModelKendaraan.query
+        query = ModelKendaraan.query.options(joinedload(ModelKendaraan.merek))
 
         # 1. Filter berdasarkan search keyword
         if search:
@@ -23,11 +25,17 @@ class ModelKendaraanRepository:
 
     @staticmethod
     def get_by_id(id_model):
-        return ModelKendaraan.query.get(id_model)
+        return (
+            ModelKendaraan.query.options(joinedload(ModelKendaraan.merek))
+            .filter_by(id_model=id_model)
+            .first()
+        )
 
     @staticmethod
     def get_by_merek(id_merek, search=None):
-        query = ModelKendaraan.query.filter_by(id_merek=id_merek)
+        query = ModelKendaraan.query.options(joinedload(ModelKendaraan.merek)).filter_by(
+            id_merek=id_merek
+        )
 
         if search:
             query = query.filter(ModelKendaraan.nama_model.ilike(f"%{search}%"))
@@ -93,7 +101,15 @@ class ModelKendaraanRepository:
         model = ModelKendaraan.query.get(id_model)
         if not model:
             raise ValueError(f"Model dengan ID {id_model} tidak ditemukan")
-        # 2. delete model kendaraan
+
+        # 2. Cegah penghapusan model kendaraan yang sudah dipakai riwayat prediksi.
+        has_predict_history = RiwayatPrediksi.query.filter_by(id_model=id_model).first()
+        if has_predict_history:
+            raise ValueError(
+                f"Model kendaraan dengan ID {id_model} tidak bisa dihapus karena sudah dipakai pada riwayat prediksi"
+            )
+
+        # 3. delete model kendaraan
         ModelKendaraan.query.filter_by(id_model=id_model).delete()
         db.session.commit()
 

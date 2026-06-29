@@ -4,6 +4,11 @@
 
 - **Base URL API**: Sesuai dengan konfigurasi environment Anda (contoh: `http://localhost:5000`)
 - **Autentikasi**: Sebagian besar endpoint membutuhkan autentikasi berupa **Cookie (JWT)**. Cookie akan otomatis diset saat memanggil endpoint `/auth/login`.
+- **Role yang tersedia**: `user`, `admin`, dan `superadmin`
+- **Catatan otorisasi**:
+  - `superadmin` memiliki akses ke seluruh endpoint `admin`
+  - beberapa endpoint manajemen user hanya bisa diakses oleh `superadmin`
+  - pembuatan akun admin menggunakan password default dari environment variable `ADMIN_DEFAULT_PASSWORD`
 
 ---
 
@@ -135,6 +140,17 @@ Endpoint untuk mendapatkan informasi user yang sedang login berdasarkan token di
     "timestamp": "<timestamp>"
   }
   ```
+
+---
+
+### Catatan Seed & Konfigurasi Role
+
+- Seed default saat ini membuat akun `superadmin`.
+- File `seed.py` akan membuat:
+  - email: `superadmin@test.com`
+  - password: `superadmin123`
+- Endpoint `POST /user/admin` hanya bisa dipanggil oleh `superadmin`.
+- Password admin yang dibuat lewat endpoint tersebut tidak dikirim dari request body, tetapi diambil dari environment variable `ADMIN_DEFAULT_PASSWORD`.
 
 ---
 
@@ -306,7 +322,7 @@ Endpoint untuk mendapatkan daftar semua merek kendaraan.
   - `page`: Nomor halaman (default: 1)
   - `per_page`: Jumlah data per halaman (default: 10)
   - `search`: Kata kunci pencarian nama model kendaraan
-- **Response**: Mengembalikan list model kendaraan beserta data paginasi.
+- **Response**: Mengembalikan list model kendaraan beserta nama merek dan data paginasi.
 
   ```json
   {
@@ -317,51 +333,61 @@ Endpoint untuk mendapatkan daftar semua merek kendaraan.
       {
         "id_model": 1,
         "id_merek": 2,
+        "nama_merek": "Bmw",
         "nama_model": "1 Series"
       },
       {
         "id_model": 2,
         "id_merek": 5,
+        "nama_merek": "Merc",
         "nama_model": "180"
       },
       {
         "id_model": 3,
         "id_merek": 2,
+        "nama_merek": "Bmw",
         "nama_model": "2 Series"
       },
       {
         "id_model": 4,
         "id_merek": 5,
+        "nama_merek": "Merc",
         "nama_model": "200"
       },
       {
         "id_model": 5,
         "id_merek": 5,
+        "nama_merek": "Merc",
         "nama_model": "220"
       },
       {
         "id_model": 6,
         "id_merek": 5,
+        "nama_merek": "Merc",
         "nama_model": "230"
       },
       {
         "id_model": 7,
         "id_merek": 2,
+        "nama_merek": "Bmw",
         "nama_model": "3 Series"
       },
       {
         "id_model": 8,
         "id_merek": 2,
+        "nama_merek": "Bmw",
         "nama_model": "4 Series"
       },
       {
         "id_model": 9,
         "id_merek": 2,
+        "nama_merek": "Bmw",
         "nama_model": "5 Series"
       },
       {
         "id_model": 10,
         "id_merek": 2,
+        "nama_merek": "Bmw",
         "nama_model": "6 Series"
       }
     ],
@@ -395,16 +421,19 @@ Mendapatkan daftar model kendaraan spesifik berdasarkan ID Merek.
       {
         "id_model": 1,
         "id_merek": 2,
+        "nama_merek": "Bmw",
         "nama_model": "1 Series"
       },
       {
         "id_model": 3,
         "id_merek": 2,
+        "nama_merek": "Bmw",
         "nama_model": "2 Series"
       },
       {
         "id_model": 7,
         "id_merek": 2,
+        "nama_merek": "Bmw",
         "nama_model": "3 Series"
       },
       ...
@@ -426,6 +455,7 @@ Mendapatkan daftar model kendaraan spesifik berdasarkan ID Merek.
     "data": {
       "id_model": 1,
       "id_merek": 2,
+      "nama_merek": "Bmw",
       "nama_model": "1 Series"
     }
   }
@@ -454,6 +484,7 @@ Mendapatkan daftar model kendaraan spesifik berdasarkan ID Merek.
     "data": {
       "id_model": 196,
       "id_merek": 1,
+      "nama_merek": "Audi",
       "nama_model": "Innova"
     }
   }
@@ -482,6 +513,7 @@ Mendapatkan daftar model kendaraan spesifik berdasarkan ID Merek.
     "data": {
       "id_model": 196,
       "id_merek": 1,
+      "nama_merek": "Audi",
       "nama_model": "Innova Reborn"
     }
   }
@@ -503,7 +535,7 @@ Mendapatkan daftar model kendaraan spesifik berdasarkan ID Merek.
 
 ---
 
-### 4. Machine Learning Models (`/ml-model`) - _Admin Only_
+### 4. Machine Learning Models (`/ml-model`) - _Admin dan Superadmin_
 
 #### a. Get All Models
 
@@ -680,7 +712,7 @@ Mengubah status model ML tertentu menjadi model utama (aktif).
 
 #### a. Semua Riwayat Prediksi (Admin)
 
-Endpoint untuk mendapatkan semua riwayat prediksi yang pernah dilakukan oleh semua user (Admin Only).
+Endpoint untuk mendapatkan semua riwayat prediksi yang pernah dilakukan oleh semua user (`admin` dan `superadmin`).
 
 - **URL**: `/predict`
 - **Method**: `GET`
@@ -775,7 +807,7 @@ Endpoint untuk mendapatkan data chart riwayat prediksi 1 minggu kebelakang, yang
 
 Endpoint untuk mendapatkan daftar aktivitas prediksi terbaru yang dilakukan oleh semua user, termasuk informasi user, mobil yang diprediksi, harga prediksi, dan waktu prediksi.
 
-  - **URL**: `/predict/latest-activity/admin?jumlah=5`
+- **URL**: `/predict/latest-activity/admin?jumlah=5`
 - query parameter `jumlah` digunakan untuk menentukan berapa banyak aktivitas terbaru yang ingin ditampilkan (default: 5).
 - **Method**: `GET`
 - **Response**:
@@ -1201,9 +1233,56 @@ Menyediakan data ringkasan untuk grafik dan statistik pada halaman depan aplikas
   }
   ```
 
-### 7. Manajemen User (`/user`) - _Admin Only_
+### 7. Manajemen User (`/user`)
 
-#### a. Get All User
+Hak akses:
+
+- `POST /user/admin`: hanya `superadmin`
+- `GET /user`, `PATCH /user/<id_user>/set-status`, `PATCH /user/<id_user>/reset-password`, `GET /user/stats`: `admin` dan `superadmin`
+- akun `superadmin` tidak bisa diubah statusnya oleh `admin` biasa
+- akun `superadmin` tidak bisa direset password-nya oleh `admin` biasa
+
+#### a. Create Admin
+
+Endpoint untuk membuat akun admin baru. Endpoint ini hanya dapat dipanggil oleh `superadmin`.
+
+- **URL**: `/user/admin`
+- **Method**: `POST`
+- **Request Body**:
+
+  ```json
+  {
+    "nama": "Admin Operasional",
+    "email": "admin.operasional@test.com"
+  }
+  ```
+
+- **Catatan**:
+  - password tidak dikirim dari request body
+  - password admin baru akan diambil dari environment variable `ADMIN_DEFAULT_PASSWORD`
+  - jika `ADMIN_DEFAULT_PASSWORD` belum diatur atau kurang dari 6 karakter, request akan gagal
+
+- **Response**:
+
+  ```json
+  {
+    "success": true,
+    "message": "Admin berhasil dibuat",
+    "timestamp": "<timestamp>",
+    "data": {
+      "user": {
+        "id_user": 3,
+        "nama": "Admin Operasional",
+        "email": "admin.operasional@test.com",
+        "role": "admin",
+        "is_active": true,
+        "created_at": "<timestamp>"
+      }
+    }
+  }
+  ```
+
+#### b. Get All User
 
 - **URL**: `/user`
 - **Method**: `GET`
@@ -1245,7 +1324,7 @@ Menyediakan data ringkasan untuk grafik dan statistik pada halaman depan aplikas
   }
   ```
 
-#### b. Set Status User (Aktif/Non-Aktif)
+#### c. Set Status User (Aktif/Non-Aktif)
 
 Endpoint untuk memblokir atau mengaktifkan kembali akun user.
 
@@ -1261,7 +1340,31 @@ Endpoint untuk memblokir atau mengaktifkan kembali akun user.
   }
   ```
 
-#### c. Get User Stats
+#### d. Reset Password User
+
+Endpoint untuk mereset password user ke password default yang disimpan di environment variable `USER_DEFAULT_PASSWORD`.
+
+- **URL**: `/user/<id_user>/reset-password`
+- **Method**: `PATCH`
+- **Request Body**: tidak diperlukan
+
+- **Catatan**:
+  - password baru tidak dikirim dari request body
+  - password baru akan diambil dari environment variable `USER_DEFAULT_PASSWORD`
+  - jika `USER_DEFAULT_PASSWORD` belum diatur atau kurang dari 6 karakter, request akan gagal
+  - `admin` biasa tidak dapat mereset password akun `superadmin`
+
+- **Response**:
+
+  ```json
+  {
+    "success": true,
+    "message": "Password user User Test berhasil direset ke password default",
+    "timestamp": "<timestamp>"
+  }
+  ```
+
+#### e. Get User Stats
 
 - **URL**: `/user/stats`
 - **Method**: `GET`

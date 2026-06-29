@@ -8,7 +8,7 @@ class MlModel(db.Model):
     id_ml_model = db.Column(db.Integer, primary_key=True, autoincrement=True)
     uploaded_by = db.Column(
         db.Integer,
-        db.ForeignKey("users.id_user", onupdate="CASCADE", ondelete="CASCADE"),
+        db.ForeignKey("users.id_user", onupdate="CASCADE"),
         nullable=False,
     )
     file_path = db.Column(db.String(150), unique=True, nullable=False)
@@ -19,6 +19,8 @@ class MlModel(db.Model):
     uploaded_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utc_now)
 
     # Eager load user - model ML selalu perlu info who uploaded
-    user = db.relationship("User", back_populates="ml_models", lazy='joined')
+    user = db.relationship("User", back_populates="ml_models", lazy="joined")
     # Lazy load predicts - prediksi bisa banyak, tidak selalu diakses
-    predicts = db.relationship("RiwayatPrediksi", back_populates="ml_model", lazy='subquery')
+    predicts = db.relationship(
+        "RiwayatPrediksi", back_populates="ml_model", lazy="subquery"
+    )

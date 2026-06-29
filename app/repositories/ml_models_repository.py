@@ -1,6 +1,7 @@
 import os
 from app.extensions import db
 from app.models.ml_models_model import MlModel
+from app.models.riwayat_prediksi_model import RiwayatPrediksi
 
 
 class MlModelsRepository:
@@ -87,7 +88,16 @@ class MlModelsRepository:
         if not existing_model:
             raise ValueError(f"Model ML dengan ID {id_ml_model} tidak ditemukan")
 
-        # 2. delete model
+        # 2. Cegah penghapusan model yang sudah dipakai riwayat prediksi.
+        has_predict_history = RiwayatPrediksi.query.filter_by(
+            id_ml_model=id_ml_model
+        ).first()
+        if has_predict_history:
+            raise ValueError(
+                f"Model ML dengan ID {id_ml_model} tidak bisa dihapus karena sudah dipakai pada riwayat prediksi"
+            )
+
+        # 3. delete model
         MlModel.query.filter_by(id_ml_model=id_ml_model).delete()
         db.session.commit()
 

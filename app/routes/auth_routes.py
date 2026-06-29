@@ -22,6 +22,7 @@ def logout():
 
 
 @auth_bp.post("/refresh")
+@login_required
 def refresh():
     return AuthController.refresh()
 

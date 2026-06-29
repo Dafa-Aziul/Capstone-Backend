@@ -1,4 +1,6 @@
 from app.repositories.user_repository import UserRepository
+from flask import current_app
+from werkzeug.security import generate_password_hash
 
 
 class UserService:
@@ -25,13 +27,58 @@ class UserService:
                 "has_prev": page > 1,
             },
         }
-        
+
     @staticmethod
     def set_status(target_user_id, current_user_id):
         if int(target_user_id) == int(current_user_id):
             raise ValueError("Tidak dapat update status sendiri")
-        return UserRepository.set_status_user(target_user_id)
+        current_user = UserRepository.get_by_id(current_user_id)
+        if not current_user:
+            raise ValueError("User tidak ditemukan")
+        return UserRepository.set_status_user(target_user_id, current_user.role)
 
     @staticmethod
     def get_stat():
         return UserRepository.get_stat()
+
+    @staticmethod
+    def create_admin(nama, email):
+        existing_user = UserRepository.get_by_email(email)
+        if existing_user:
+            raise ValueError("Email sudah terdaftar")
+
+        default_password = current_app.config.get("ADMIN_DEFAULT_PASSWORD")
+        if not default_password:
+            raise ValueError("ADMIN_DEFAULT_PASSWORD belum dikonfigurasi di environment")
+
+        if len(default_password) < 6:
+            raise ValueError("ADMIN_DEFAULT_PASSWORD minimal harus 6 karakter")
+
+        hashed_password = generate_password_hash(default_password)
+        return UserRepository.create(
+            nama=nama,
+            email=email,
+            password=hashed_password,
+            role="admin",
+        )
+
+    @staticmethod
+    def reset_password(target_user_id, current_user_id):
+        current_user = UserRepository.get_by_id(current_user_id)
+        if not current_user:
+            raise ValueError("User tidak ditemukan")
+
+        default_password = current_app.config.get("USER_DEFAULT_PASSWORD")
+        if not default_password:
+            raise ValueError("USER_DEFAULT_PASSWORD belum dikonfigurasi di environment")
+
+        if len(default_password) < 6:
+            raise ValueError("USER_DEFAULT_PASSWORD minimal harus 6 karakter")
+
+        hashed_password = generate_password_hash(default_password)
+        return UserRepository.reset_password_user(
+            id_user=target_user_id,
+            hashed_password=hashed_password,
+            actor_role=current_user.role,
+        )
+
